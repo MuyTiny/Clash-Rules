@@ -1,0 +1,52 @@
+# ---------------------------------------------------
+# GitHub 私有托管配置 - 彻底解决翻译直连
+# ---------------------------------------------------
+port: 7890
+socks-port: 7891
+allow-lan: true
+mode: rule
+log-level: info
+ipv6: false
+
+# 1. 代理集合（自动拉取你 GCP 上的节点）
+proxy-providers:
+  GCP_Nodes:
+    type: http
+    url: "http://gcp.tiyang.work:2096/sub/my_all_nodes"
+    path: ./proxies/my_nodes.yaml
+    interval: 3600
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 300
+
+# 2. 策略组
+proxy-groups:
+  - name: 🐟 漏网之鱼
+    type: select
+    use:
+      - GCP_Nodes
+
+# 3. 规则源 (Loyalsoldier 版)
+rule-providers:
+  google:
+    type: http
+    behavior: domain
+    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/google.txt"
+    path: ./ruleset/google.yaml
+    interval: 86400
+  direct:
+    type: http
+    behavior: domain
+    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/direct.txt"
+    path: ./ruleset/direct.yaml
+    interval: 86400
+
+# 4. 路由规则（翻译置顶，绝对生效）
+rules:
+  - DOMAIN-KEYWORD,translate,🐟 漏网之鱼
+  - DOMAIN-SUFFIX,googleapis.com,🐟 漏网之鱼
+  - RULE-SET,google,🐟 漏网之鱼
+  - RULE-SET,direct,DIRECT
+  - GEOIP,CN,DIRECT
+  - MATCH,🐟 漏网之鱼
