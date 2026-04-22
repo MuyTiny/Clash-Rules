@@ -1,14 +1,9 @@
 # ---------------------------------------------------
-# GitHub 私有托管配置 - 彻底解决翻译直连
+# MuyTiny 终极模块化云端配置 (基于 Loyalsoldier 规则集)
+# 适应场景：Unity 开发、游戏加速、全自动分流
 # ---------------------------------------------------
-port: 7890
-socks-port: 7891
-allow-lan: true
-mode: rule
-log-level: info
-ipv6: false
 
-# 1. 代理集合（自动拉取你 GCP 上的节点）
+# 1. 节点供应 (直接从你的 GCP 服务器拉取原生节点)
 proxy-providers:
   GCP_Nodes:
     type: http
@@ -20,20 +15,85 @@ proxy-providers:
       url: http://www.gstatic.com/generate_204
       interval: 300
 
-# 2. 策略组
+# 2. 策略组 (Unity 开发者定制版)
 proxy-groups:
+  - name: 🔰 节点选择
+    type: select
+    use: [GCP_Nodes]
+
+  - name: 💻 程序员专线
+    type: select
+    proxies: [🔰 节点选择, DIRECT]
+    use: [GCP_Nodes]
+
+  - name: 🎮 游戏平台
+    type: select
+    proxies: [DIRECT, 🔰 节点选择]
+    use: [GCP_Nodes]
+
+  - name: 🎬 国际媒体
+    type: select
+    proxies: [🔰 节点选择, DIRECT]
+    use: [GCP_Nodes]
+
   - name: 🐟 漏网之鱼
     type: select
-    use:
-      - GCP_Nodes
+    proxies: [🔰 节点选择, DIRECT]
+    use: [GCP_Nodes]
 
-# 3. 规则源 (Loyalsoldier 版)
+  - name: 🌍 全球直连
+    type: select
+    proxies: [DIRECT, 🔰 节点选择]
+
+# 3. 规则供应 (补全了你担心的所有 Loyalsoldier 核心库)
 rule-providers:
+  reject:
+    type: http
+    behavior: domain
+    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/reject.txt"
+    path: ./ruleset/reject.yaml
+    interval: 86400
+  icloud:
+    type: http
+    behavior: domain
+    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/icloud.txt"
+    path: ./ruleset/icloud.yaml
+    interval: 86400
+  apple:
+    type: http
+    behavior: domain
+    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/apple.txt"
+    path: ./ruleset/apple.yaml
+    interval: 86400
   google:
     type: http
     behavior: domain
     url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/google.txt"
     path: ./ruleset/google.yaml
+    interval: 86400
+  github:
+    type: http
+    behavior: domain
+    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/github.txt"
+    path: ./ruleset/github.yaml
+    interval: 86400
+  microsoft:
+    type: http
+    behavior: domain
+    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/microsoft.txt"
+    path: ./ruleset/microsoft.yaml
+    interval: 86400
+  steam:
+    type: http
+    behavior: domain
+    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/steam.txt"
+    path: ./ruleset/steam.yaml
+    interval: 86400
+  proxy:
+    type: http
+    behavior: domain
+    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/proxy.txt"
+    path: ./ruleset/proxy.yaml
     interval: 86400
   direct:
     type: http
@@ -41,12 +101,68 @@ rule-providers:
     url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/direct.txt"
     path: ./ruleset/direct.yaml
     interval: 86400
+  private:
+    type: http
+    behavior: domain
+    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/private.txt"
+    path: ./ruleset/private.yaml
+    interval: 86400
+  gfw:
+    type: http
+    behavior: domain
+    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/gfw.txt"
+    path: ./ruleset/gfw.yaml
+    interval: 86400
+  telegramcidr:
+    type: http
+    behavior: ipcidr
+    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/telegramcidr.txt"
+    path: ./ruleset/telegramcidr.yaml
+    interval: 86400
+  cncidr:
+    type: http
+    behavior: ipcidr
+    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/cncidr.txt"
+    path: ./ruleset/cncidr.yaml
+    interval: 86400
+  lancidr:
+    type: http
+    behavior: ipcidr
+    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/lancidr.txt"
+    path: ./ruleset/lancidr.yaml
+    interval: 86400
 
-# 4. 路由规则（翻译置顶，绝对生效）
+# 4. 路由规则 (严格执行优先级顺序)
 rules:
+  # 【优先级 1】自定义强制规则 (解决翻译、Unity 特定域名等)
   - DOMAIN-KEYWORD,translate,🐟 漏网之鱼
   - DOMAIN-SUFFIX,googleapis.com,🐟 漏网之鱼
+
+  # 【优先级 2】基础连接限制 (私有网络/本地请求)
+  - RULE-SET,private,DIRECT
+  - RULE-SET,lancidr,DIRECT,no-resolve
+
+  # 【优先级 3】广告拦截
+  - RULE-SET,reject,REJECT
+
+  # 【优先级 4】细分服务分流
+  - RULE-SET,github,💻 程序员专线
+  - RULE-SET,microsoft,💻 程序员专线
+  - RULE-SET,steam,🎮 游戏平台
   - RULE-SET,google,🐟 漏网之鱼
-  - RULE-SET,direct,DIRECT
-  - GEOIP,CN,DIRECT
+  - RULE-SET,apple,🌍 全球直连
+  - RULE-SET,icloud,🌍 全球直连
+  - RULE-SET,telegramcidr,🐟 漏网之鱼,no-resolve
+
+  # 【优先级 5】大规模黑名单 (GFW/Proxy 列表)
+  - RULE-SET,gfw,🐟 漏网之鱼
+  - RULE-SET,proxy,🐟 漏网之鱼
+
+  # 【优先级 6】国内直连 (白名单)
+  - RULE-SET,direct,🌍 全球直连
+  - RULE-SET,cncidr,🌍 全球直连,no-resolve
+
+  # 【优先级 7】兜底 (防止漏网)
+  - GEOIP,LAN,DIRECT,no-resolve
+  - GEOIP,CN,DIRECT,no-resolve
   - MATCH,🐟 漏网之鱼
