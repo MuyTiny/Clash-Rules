@@ -7,7 +7,7 @@
 proxy-providers:
   GCP_Nodes:
     type: http
-    url: "http://gcp.tiyang.work:2096/clash/my_all_nodes"
+    url: "http://104.199.143.197:2096/clash/my_all_nodes"
     path: ./proxy_provider/my_nodes.yaml
     header:
       User-Agent: ["Clash"]
