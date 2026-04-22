@@ -7,9 +7,10 @@
 proxy-providers:
   GCP_Nodes:
     type: http
-    url: "http://104.199.143.197:2096/clash/my_all_nodes"
+    # 使用这个带转换器的 IP 链接，能把 vless 变成 YAML 格式
+    url: "http://104.199.143.197:25500/sub?target=clash&url=http://104.199.143.197:2096/sub/my_all_nodes"
     path: ./proxy_provider/my_nodes.yaml
-    header:
+    headers:
       User-Agent: ["Clash"]
     interval: 3600
     health-check:
