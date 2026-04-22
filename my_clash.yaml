@@ -144,8 +144,13 @@ rule-providers:
 
 # 4. 路由规则
 rules:
-  # 【优先级 1】自定义强制规则
-  - DOMAIN-KEYWORD,translate,🐟 漏网之鱼
+  # 【优先级 1】自定义强制规则 (精准打击)
+  # 网页版和插件的核心 API
+  - DOMAIN,translate.googleapis.com,🐟 漏网之鱼
+  # 谷歌翻译主站
+  - DOMAIN-SUFFIX,translate.google.com,🐟 漏网之鱼
+  # 某些地区可能用到的后缀
+  - DOMAIN,translate.google.cn,🐟 漏网之鱼
   - DOMAIN-SUFFIX,googleapis.com,🐟 漏网之鱼
 
   # 【优先级 2】基础连接限制
