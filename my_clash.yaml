@@ -1,9 +1,9 @@
 # ---------------------------------------------------
-# MuyTiny 终极模块化云端配置 (基于 Loyalsoldier 规则集)
-# 适应场景：Unity 开发、游戏加速、全自动分流
+# MuyTiny 终极模块化云端配置 (2026 增强版)
+# 核心升级：增加可视化广告拦截开关 + 隐私追踪保护
 # ---------------------------------------------------
 
-# 1. 节点供应 (直接从你的 GCP 服务器拉取原生节点)
+# 1. 节点供应
 proxy-providers:
   GCP_Nodes:
     type: http
@@ -15,7 +15,7 @@ proxy-providers:
       url: http://www.gstatic.com/generate_204
       interval: 300
 
-# 2. 策略组 (Unity 开发者定制版)
+# 2. 策略组 (增加 🚫 广告拦截 可视化开关)
 proxy-groups:
   - name: 🔰 节点选择
     type: select
@@ -31,6 +31,10 @@ proxy-groups:
     proxies: [DIRECT, 🔰 节点选择]
     use: [GCP_Nodes]
 
+  - name: 🚫 广告拦截
+    type: select
+    proxies: [REJECT, DIRECT]
+
   - name: 🎬 国际媒体
     type: select
     proxies: [🔰 节点选择, DIRECT]
@@ -45,13 +49,19 @@ proxy-groups:
     type: select
     proxies: [DIRECT, 🔰 节点选择]
 
-# 3. 规则供应 (补全了你担心的所有 Loyalsoldier 核心库)
+# 3. 规则供应 (增加了隐私追踪库)
 rule-providers:
   reject:
     type: http
     behavior: domain
     url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/reject.txt"
     path: ./ruleset/reject.yaml
+    interval: 86400
+  privacy:
+    type: http
+    behavior: domain
+    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/privacy.txt"
+    path: ./ruleset/privacy.yaml
     interval: 86400
   icloud:
     type: http
@@ -132,20 +142,21 @@ rule-providers:
     path: ./ruleset/lancidr.yaml
     interval: 86400
 
-# 4. 路由规则 (严格执行优先级顺序)
+# 4. 路由规则
 rules:
-  # 【优先级 1】自定义强制规则 (解决翻译、Unity 特定域名等)
+  # 【优先级 1】自定义强制规则
   - DOMAIN-KEYWORD,translate,🐟 漏网之鱼
   - DOMAIN-SUFFIX,googleapis.com,🐟 漏网之鱼
 
-  # 【优先级 2】基础连接限制 (私有网络/本地请求)
+  # 【优先级 2】基础连接限制
   - RULE-SET,private,DIRECT
   - RULE-SET,lancidr,DIRECT,no-resolve
 
-  # 【优先级 3】广告拦截
-  - RULE-SET,reject,REJECT
+  # 【优先级 3】可视化广告/追踪拦截 (映射到策略组)
+  - RULE-SET,reject,🚫 广告拦截
+  - RULE-SET,privacy,🚫 广告拦截
 
-  # 【优先级 4】细分服务分流
+  # 【优先级 4】细分分流
   - RULE-SET,github,💻 程序员专线
   - RULE-SET,microsoft,💻 程序员专线
   - RULE-SET,steam,🎮 游戏平台
@@ -154,15 +165,15 @@ rules:
   - RULE-SET,icloud,🌍 全球直连
   - RULE-SET,telegramcidr,🐟 漏网之鱼,no-resolve
 
-  # 【优先级 5】大规模黑名单 (GFW/Proxy 列表)
+  # 【优先级 5】代理列表
   - RULE-SET,gfw,🐟 漏网之鱼
   - RULE-SET,proxy,🐟 漏网之鱼
 
-  # 【优先级 6】国内直连 (白名单)
+  # 【优先级 6】直连列表
   - RULE-SET,direct,🌍 全球直连
   - RULE-SET,cncidr,🌍 全球直连,no-resolve
 
-  # 【优先级 7】兜底 (防止漏网)
+  # 【优先级 7】兜底
   - GEOIP,LAN,DIRECT,no-resolve
   - GEOIP,CN,DIRECT,no-resolve
   - MATCH,🐟 漏网之鱼
