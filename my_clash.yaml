@@ -144,6 +144,7 @@ rule-providers:
 
 # 4. 路由规则
 rules:
+  - DOMAIN,gcp.tiyang.work,DIRECT  # 确保拉取节点的请求不走代理，直接放行
   # 【优先级 1】自定义强制规则 (精准打击)
   # 网页版和插件的核心 API
   - DOMAIN,translate.googleapis.com,🐟 漏网之鱼
