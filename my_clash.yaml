@@ -8,7 +8,7 @@ proxy-providers:
   GCP_Nodes:
     type: http
     url: "http://gcp.tiyang.work:2096/sub/my_all_nodes"
-    path: ./proxies/my_nodes.yaml
+    path: ./proxy_provider/my_nodes.yaml
     interval: 3600
     health-check:
       enable: true
@@ -49,108 +49,107 @@ proxy-groups:
     type: select
     proxies: [DIRECT, 🔰 节点选择]
 
-# 3. 规则供应 (增加了隐私追踪库)
+# 3. 规则供应 (路径已统一适配 OpenClash)
 rule-providers:
   reject:
     type: http
     behavior: domain
     url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/reject.txt"
-    path: ./ruleset/reject.yaml
+    path: ./rule_provider/reject.yaml
     interval: 86400
   privacy:
     type: http
     behavior: domain
     url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/privacy.txt"
-    path: ./ruleset/privacy.yaml
+    path: ./rule_provider/privacy.yaml
     interval: 86400
   icloud:
     type: http
     behavior: domain
     url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/icloud.txt"
-    path: ./ruleset/icloud.yaml
+    path: ./rule_provider/icloud.yaml
     interval: 86400
   apple:
     type: http
     behavior: domain
     url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/apple.txt"
-    path: ./ruleset/apple.yaml
+    path: ./rule_provider/apple.yaml
     interval: 86400
   google:
     type: http
     behavior: domain
     url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/google.txt"
-    path: ./ruleset/google.yaml
+    path: ./rule_provider/google.yaml
     interval: 86400
   github:
     type: http
     behavior: domain
     url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/github.txt"
-    path: ./ruleset/github.yaml
+    path: ./rule_provider/github.yaml
     interval: 86400
   microsoft:
     type: http
     behavior: domain
     url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/microsoft.txt"
-    path: ./ruleset/microsoft.yaml
+    path: ./rule_provider/microsoft.yaml
     interval: 86400
   steam:
     type: http
     behavior: domain
     url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/steam.txt"
-    path: ./ruleset/steam.yaml
+    path: ./rule_provider/steam.yaml
     interval: 86400
   proxy:
     type: http
     behavior: domain
     url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/proxy.txt"
-    path: ./ruleset/proxy.yaml
+    path: ./rule_provider/proxy.yaml
     interval: 86400
   direct:
     type: http
     behavior: domain
     url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/direct.txt"
-    path: ./ruleset/direct.yaml
+    path: ./rule_provider/direct.yaml
     interval: 86400
   private:
     type: http
     behavior: domain
     url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/private.txt"
-    path: ./ruleset/private.yaml
+    path: ./rule_provider/private.yaml
     interval: 86400
   gfw:
     type: http
     behavior: domain
     url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/gfw.txt"
-    path: ./ruleset/gfw.yaml
+    path: ./rule_provider/gfw.yaml
     interval: 86400
   telegramcidr:
     type: http
     behavior: ipcidr
     url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/telegramcidr.txt"
-    path: ./ruleset/telegramcidr.yaml
+    path: ./rule_provider/telegramcidr.yaml
     interval: 86400
   cncidr:
     type: http
     behavior: ipcidr
     url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/cncidr.txt"
-    path: ./ruleset/cncidr.yaml
+    path: ./rule_provider/cncidr.yaml
     interval: 86400
   lancidr:
     type: http
     behavior: ipcidr
     url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/lancidr.txt"
-    path: ./ruleset/lancidr.yaml
+    path: ./rule_provider/lancidr.yaml
     interval: 86400
 
 # 4. 路由规则
 rules:
-  - DOMAIN,gcp.tiyang.work,DIRECT  # 确保拉取节点的请求不走代理，直接放行
-  # 【优先级 1】自定义强制规则 (精准打击)
-  # 网页版和插件的核心 API
+  # 【强制首位】解开节点拉取死锁
+  - DOMAIN,gcp.tiyang.work,DIRECT
+
+  # 【优先级 1】自定义强制规则
   - DOMAIN,translate.googleapis.com,🐟 漏网之鱼
-  # 谷歌翻译主站
   - DOMAIN-SUFFIX,translate.google.com,🐟 漏网之鱼
-  # 某些地区可能用到的后缀
   - DOMAIN,translate.google.cn,🐟 漏网之鱼
   - DOMAIN-SUFFIX,googleapis.com,🐟 漏网之鱼
 
@@ -158,7 +157,7 @@ rules:
   - RULE-SET,private,DIRECT
   - RULE-SET,lancidr,DIRECT,no-resolve
 
-  # 【优先级 3】可视化广告/追踪拦截 (映射到策略组)
+  # 【优先级 3】可视化广告拦截
   - RULE-SET,reject,🚫 广告拦截
   - RULE-SET,privacy,🚫 广告拦截
 
